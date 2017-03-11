@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_red"
+            android:icon="@drawable/ic_color_palette_red"
+            android:title="Red" />
+        <item
+            android:id="@+id/nav_green"
+            android:icon="@drawable/ic_color_palette_green"
+            android:title="Green" />
+        <item
+            android:id="@+id/nav_blue"
+            android:icon="@drawable/ic_color_palette_blue"
+            android:title="Blue" />
+        <item
+            android:id="@+id/nav_palette"
+            android:icon="@drawable/ic_color_palette_palette"
+            android:title="palette" />
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_animation"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_exit"
+                android:icon="@drawable/ic_menu_close"
+                android:title="Exit" />
+        </menu>
+    </item>
+
+</menu>
