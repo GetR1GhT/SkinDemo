@@ -44,18 +44,8 @@ public class ThemeHelper {
                 return "THE RED";
             case CARD_BLUE:
                 return "THE BLUE";
-            case CARD_WOOD:
-                return "THE WOOD";
-            case CARD_LIGHT:
-                return "THE LIGHT";
             case CARD_GREEN:
                 return "THE GREEN";
-            case CARD_THUNDER:
-                return "THE THUNDER";
-            case CARD_SAND:
-                return "THE SAND";
-            case CARD_FIREY:
-                return "THE FIREY";
             case CARD_PALETTE:
                 return "THE PALETTE";
         }

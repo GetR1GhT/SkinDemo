@@ -2,80 +2,68 @@ package com.getright.skin.skindemo.ui;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatDelegate;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.bilibili.magicasakura.utils.ThemeUtils;
-import com.getright.skin.skindemo.MainActivity;
+import com.bilibili.magicasakura.widgets.TintToolbar;
 import com.getright.skin.skindemo.R;
+import com.getright.skin.skindemo.base.BaseActivity;
 import com.getright.skin.skindemo.utils.ThemeHelper;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-public class NavigationActivity extends AppCompatActivity
+
+public class NavigationActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    @BindView(R.id.header_image_view)
+    ImageView headerImageView;
+    @BindView(R.id.toolbar)
+    TintToolbar toolbar;
+    @BindView(R.id.tab_layout)
+    TabLayout tabLayout;
+    @BindView(R.id.collapse_toolbar)
+    CollapsingToolbarLayout collapseToolbar;
+    @BindView(R.id.view_pager)
+    ViewPager viewPager;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+    @BindView(R.id.nav_view)
+    NavigationView navView;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
     private int mCurrentTheme;
-
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation);
-        mCurrentTheme = ThemeHelper.getTheme(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Snackbar snackbar = Snackbar.make(view, "正在开发", Snackbar.LENGTH_SHORT);
-                snackbar.setAction("UNDO", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        snackbar.dismiss();
-                    }
-                });
-                snackbar.getView().setBackgroundColor(getResources().getColor(R.color.theme_color_primary_dark));
-                snackbar.show();
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-    }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -83,19 +71,13 @@ public class NavigationActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigation, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -143,6 +125,9 @@ public class NavigationActivity extends AppCompatActivity
                     ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(context, android.R.attr.colorPrimary));
                     setTaskDescription(taskDescription);
                     getWindow().setStatusBarColor(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark));
+                    collapseToolbar.setContentScrim(new ColorDrawable(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark)));
+                    fab.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(context, R.color.theme_color_primary_trans)));
+                    fab.setBackgroundColor(ThemeUtils.getColorById(context, R.color.theme_color_primary));
                 }
 
                 @Override
@@ -177,5 +162,29 @@ public class NavigationActivity extends AppCompatActivity
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(this, android.R.attr.colorPrimary));
             setTaskDescription(description);
         }
+    }
+
+    @Override
+    protected void initViewAndListener() {
+        mCurrentTheme = ThemeHelper.getTheme(this);
+        setSupportActionBar(toolbar);
+        Log.e("initViewAndListener: ", "1");
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSnack(view, "正在开发");
+            }
+        });
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.setDrawerListener(toggle);
+        toggle.syncState();
+        navView.setNavigationItemSelectedListener(this);
+
+    }
+
+    @Override
+    public int initContentView() {
+        return R.layout.activity_navigation;
     }
 }
