@@ -1,7 +1,9 @@
 package com.getright.skin.skindemo.base;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -9,9 +11,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import com.bilibili.magicasakura.utils.ThemeUtils;
 import com.getright.skin.skindemo.R;
 import com.getright.skin.skindemo.utils.AppManager;
 
@@ -31,6 +35,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         AppManager.getAppManager().addActivity(this);
     }
 
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        if (Build.VERSION.SDK_INT >= 21) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(ThemeUtils.getColorById(this, R.color.theme_color_primary_dark));
+            ActivityManager.TaskDescription description = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(this, android.R.attr.colorPrimary));
+            setTaskDescription(description);
+        }
+    }
+
     /**
      * 做一些初始化设置和监听的工作
      */
@@ -45,6 +62,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * SnackBar
+     *
      * @param view
      * @param content 输入要显示的内容
      */
@@ -58,6 +76,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * 启动带动画的Activity
+     *
      * @param cla .class
      */
     public void startAnimActivity(Class<?> cla) {

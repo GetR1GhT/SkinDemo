@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objectAnimator xmlns:androd="http://schemas.android.com/apk/res/android"
+    androd:duration="5000"
+    androd:propertyName="fillColor"
+    androd:valueFrom="@color/red500"
+    androd:valueTo="@color/green500"
+    androd:valueType="colorType">
+
+</objectAnimator>

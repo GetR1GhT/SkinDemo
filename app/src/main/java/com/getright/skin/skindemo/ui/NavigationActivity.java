@@ -2,8 +2,8 @@ package com.getright.skin.skindemo.ui;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,16 +12,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,8 +33,10 @@ import com.getright.skin.skindemo.R;
 import com.getright.skin.skindemo.base.BaseActivity;
 import com.getright.skin.skindemo.utils.ThemeHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 
 public class NavigationActivity extends BaseActivity
@@ -58,7 +58,10 @@ public class NavigationActivity extends BaseActivity
     NavigationView navView;
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
+
     private int mCurrentTheme;
+    private List<Fragment> fragments;
+    private List<String> tabTitles;
 
     @Override
     public void onBackPressed() {
@@ -104,7 +107,7 @@ public class NavigationActivity extends BaseActivity
             mCurrentTheme = ThemeHelper.CARD_PALETTE;
             changeTheme(mCurrentTheme);
         } else if (id == R.id.nav_animation) {
-
+            startActivity(new Intent(this, VectorActivity.class));
         } else if (id == R.id.nav_exit) {
             finish();
         }
@@ -115,41 +118,30 @@ public class NavigationActivity extends BaseActivity
     }
 
     private void changeTheme(int currentTheme) {
-        if (ThemeHelper.getTheme(this) != currentTheme) {
-            ThemeHelper.setTheme(this, currentTheme);
-            ThemeUtils.refreshUI(this, new ThemeUtils.ExtraRefreshable() {
-                @Override
-                public void refreshGlobal(Activity activity) {
-                    //for global setting, just do once
-                    NavigationActivity context = NavigationActivity.this;
-                    ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(context, android.R.attr.colorPrimary));
-                    setTaskDescription(taskDescription);
-                    getWindow().setStatusBarColor(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark));
-                    collapseToolbar.setContentScrim(new ColorDrawable(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark)));
-                    fab.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(context, R.color.theme_color_primary_trans)));
-                    fab.setBackgroundColor(ThemeUtils.getColorById(context, R.color.theme_color_primary));
-                }
+        ThemeHelper.setTheme(this, currentTheme);
+        ThemeUtils.refreshUI(this, new ThemeUtils.ExtraRefreshable() {
+            @Override
+            public void refreshGlobal(Activity activity) {
+                //for global setting, just do once
+                NavigationActivity context = NavigationActivity.this;
+                ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(context, android.R.attr.colorPrimary));
+                setTaskDescription(taskDescription);
+                getWindow().setStatusBarColor(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark));
+                collapseToolbar.setContentScrim(new ColorDrawable(ThemeUtils.getColorById(context, R.color.theme_color_primary_dark)));
+                fab.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(context, R.color.theme_color_primary_trans)));
+                fab.setRippleColor(ThemeUtils.getColorById(context, R.color.theme_color_primary));
+                tabLayout.setSelectedTabIndicatorColor(ThemeUtils.getColorById(context, R.color.theme_color_primary));
+                tabLayout.setTabTextColors(ThemeUtils.getColorById(context, R.color.text_primary_color), ThemeUtils.getColorById(context, R.color.theme_color_primary));
+            }
 
-                @Override
-                public void refreshSpecificView(View view) {
+            @Override
+            public void refreshSpecificView(View view) {
 
-                }
-            });
-        }
+            }
+        });
+
     }
 
-    @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onPostCreate(savedInstanceState, persistentState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(ThemeUtils.getColorById(this, R.color.theme_color_primary_dark));
-            ActivityManager.TaskDescription description = new ActivityManager.TaskDescription(null, null, ThemeUtils.getThemeAttrColor(this, android.R.attr.colorPrimary));
-            setTaskDescription(description);
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -168,7 +160,6 @@ public class NavigationActivity extends BaseActivity
     protected void initViewAndListener() {
         mCurrentTheme = ThemeHelper.getTheme(this);
         setSupportActionBar(toolbar);
-        Log.e("initViewAndListener: ", "1");
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -180,11 +171,54 @@ public class NavigationActivity extends BaseActivity
         drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
         navView.setNavigationItemSelectedListener(this);
+        fab.setSize(FloatingActionButton.SIZE_MINI);
+        collapseToolbar.setTitleEnabled(false);
+        initTab();
+        changeTheme(mCurrentTheme);
+    }
 
+    private void initTab() {
+        tabTitles = new ArrayList<>();
+        tabTitles.add("TAB1");
+        tabTitles.add("TAB2");
+        tabTitles.add("TAB3");
+        fragments = new ArrayList<>();
+        for (int i = 0; i < tabTitles.size(); i++) {
+            fragments.add(new RecyclerViewFragment());
+            tabLayout.addTab(tabLayout.newTab().setText(tabTitles.get(i)));
+        }
+        TabViewPagerAdapter tabViewPagerAdapter = new TabViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(tabViewPagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override
     public int initContentView() {
         return R.layout.activity_navigation;
+    }
+
+    /**
+     * Viewpager的适配器
+     */
+    private class TabViewPagerAdapter extends FragmentPagerAdapter {
+
+        public TabViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragments.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return tabTitles.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles.get(position);
+        }
     }
 }

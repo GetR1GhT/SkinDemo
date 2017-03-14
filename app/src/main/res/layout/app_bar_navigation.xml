@@ -16,14 +16,15 @@
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|enterAlways">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
+                android:layout_marginBottom="50dp"
                 android:id="@+id/header_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/icon_jay"
                 android:scaleType="fitXY"
+                android:src="@drawable/icon_jay"
                 app:layout_collapseMode="parallax" />
 
             <com.bilibili.magicasakura.widgets.TintToolbar
@@ -32,15 +33,20 @@
                 android:layout_height="50dp"
                 android:background="@color/theme_color_primary"
                 android:minHeight="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
+                app:layout_collapseMode="parallax"
                 app:popupTheme="@style/Widget.App.Toolbar" />
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tab_layout"
-                android:layout_gravity="bottom"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                app:layout_collapseMode="pin" />
+                android:layout_height="50dp"
+                android:layout_gravity="bottom"
+                android:background="@color/white"
+                app:layout_collapseMode="pin"
+                app:tabIndicatorColor="@color/theme_color_primary"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="@color/theme_color_primary_trans"
+                app:tabTextColor="@color/text_primary_color" />
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </com.bilibili.magicasakura.widgets.TintAppBarLayout>
@@ -49,7 +55,7 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!--<include layout="@layout/content_navigation" />-->
 
@@ -60,7 +66,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:backgroundTint="@color/theme_color_primary"
-        app:rippleColor="@color/theme_color_primary_trans"
+        app:rippleColor="@color/gray_trans"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
 </android.support.design.widget.CoordinatorLayout>
